@@ -1,0 +1,10 @@
+node_modules
+WechatEveryDay.memory-card.json
+.env
+test.js
+Chromium.app
+
+.DS_Store
+.idea
+.data/
+*.log

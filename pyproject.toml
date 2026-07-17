@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wechat-nutrition-bot"
+version = "1.1.0"
+description = "V1.1 chat-first WeChat nutrition logger with deterministic targets and MCP tools"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "defusedxml>=0.7.1",
+  "fastapi>=0.116,<1",
+  "mcp[cli]>=1.26,<3",
+  "openai>=1.90,<3",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "tzdata>=2025.2",
+  "uvicorn[standard]>=0.35,<1",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28,<1",
+  "pytest>=8.4,<10",
+  "pytest-asyncio>=1.0,<2",
+  "ruff>=0.12,<1",
+]
+
+[project.scripts]
+nutrition-bot = "wechat_nutrition_bot.main:run"
+nutrition-mcp = "wechat_nutrition_bot.mcp_server:run"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wechat_nutrition_bot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
