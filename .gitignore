@@ -1,0 +1,37 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+dist/
+build/
+*.egg-info/
+
+# Runtime and user data
+data/runtime/
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.jsonl
+
+# Node / WeChat session state
+node_modules/
+.data/
+WechatEveryDay.memory-card.json
+*-qr.png
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

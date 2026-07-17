@@ -1,0 +1,4 @@
+interface:
+  display_name: "微信健康饮食助手"
+  short_description: "通过资料确认、确定性营养工具与分餐汇总安全记录饮食"
+  default_prompt: "Use $track-healthy-diet to confirm onboarding when needed, record this meal with controlled data, show its meal period and daily macro balance, and explain uncertainty safely."
