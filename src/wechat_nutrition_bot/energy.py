@@ -83,7 +83,7 @@ def calculate_energy_targets(profile: ProfileDraftData) -> EnergyTargetResult:
         assumptions=[
             "静息能量使用 Mifflin–St Jeor 方程",
             "总能量为静息能量乘以活动系数 PAL",
-            "减脂 -15%、增肌 +8% 是 V1.1 的保守产品默认值",
+            "减脂 -15%、增肌 +8% 是 V1.2 的保守产品默认值",
             f"蛋白质按 {protein_factor:.1f} g/kg，脂肪按目标能量 25%，碳水补足剩余能量",
         ],
         warnings=warnings,

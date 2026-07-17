@@ -1,39 +1,49 @@
-# 微信营养助手 V1.1
+# 微信营养助手 V1.2
 
-一个以**微信原生私聊窗口**为入口的饮食记录与营养监测助手。用户直接发送“米饭 100g、鸡胸肉 150g”等自然语言，系统完成资料采集、食物识别、确定性营养计算、按餐归档和每日汇总，不需要下载 App 或进入小程序。
+以**微信原生私聊窗口**为入口的饮食记录与营养监测助手。用户以自然语言发送饮食、训练和健康数据，系统完成智能识别、确定性营养计算、按餐归档和每日汇总。
 
-> V1.1 是可运行的实验版本。普通微信接入依赖非官方网页协议，存在登录失败、微信警告或测试账号被限制的风险，只应使用专用小号测试，不建议用于生产或商业服务。
+> V1.2 是 V1.1 的功能完整升级。食物目录从 28 种扩展到 1623 种，新增份量系统、训练追踪、情感支持和每日总结。普通微信接入仍依赖非官方网页协议，只用专用小号测试。
 
-## 主要功能
+## V1.1 → V1.2 主要变化
 
-- 微信私聊记录：以“营养助手”作为消息前缀，保留原生聊天体验。
-- 首次资料采集：取得同意后，可乱序采集性别、年龄、身高、体重、活动水平、训练年限、训练频率和增肌/减脂/维持目标，并让用户二次确认。
-- 每日热量目标：使用 Mifflin–St Jeor 基础代谢公式与活动系数计算初始目标；减脂 `-15%`、增肌 `+8%` 为 V1.1 产品默认值，并非医疗处方。
-- 确定性营养计算：大模型只负责理解和表达，热量、蛋白质、脂肪、碳水由食物目录或包装标签数据计算，不允许模型编造数字。
-- 自动餐次：按 Asia/Shanghai 时间归入早餐（06:00–11:00）、中午（11:00–14:00）、下午（14:00–19:00）或晚上（19:00–次日 06:00）。
-- 当日汇总：每次记录后返回本餐及当天累计热量与三大营养素。
-- 自定义食物：可依据包装营养标签登记个人食物，再按实际食用克数计算。
-- 长期追踪：体重趋势、每日余量、营养缺口和每周回顾。
-- 隐私控制：业务库使用 HMAC 化用户标识；支持删除用户数据；示例配置不包含真实密钥。
-- 双重接入：包含普通微信 Wechaty 适配器，同时保留微信公众号回调接口。
-- MCP + Skill：提供 18 个营养工具和可复用的健康饮食 Skill，便于 Codex/Claude 等 Agent 调用。
+| 方面 | V1.1 | V1.2 |
+|------|------|------|
+| **食物数据库** | 28 种种子数据 | 1623 种（中国食物成分表第6版） |
+| **份量表达** | 仅支持克(g)/公斤(kg) | 一碗饭、一个蛋、半碗面、几口菜… |
+| **模糊语句** | 正则失败即拒绝 | DeepSeek + 默认份量估算 + 置信区间 |
+| **训练/运动** | 完全不支持 | 力量/有氧/HIIT + 步数 + 消耗估算 |
+| **情感支持** | 无 | 暴食/焦虑/平台/生病等 12 类回应 |
+| **补充剂** | 无 | 蛋白粉/肌酸/鱼油等 16 种 |
+| **每日总结** | 无 | 22:00 自动生成 + 手动查询 |
+| **体重记录** | 必须 "记录体重 72kg" | "体重72kg" 即可 |
+| **回复风格** | 纯数据 | Emoji + 份量 + 置信度 + 建议 |
 
-## 工作方式
+## 用户能说什么（V1.2 新增）
 
 ```text
-微信好友私聊
-  -> 专用微信测试小号（扫码登录）
-  -> Wechaty / wechat4u 适配器
-  -> 本机鉴权接口 POST /internal/chat
-  -> NutritionAgent
-       -> 授权、资料采集与二次确认
-       -> DeepSeek 结构化理解（可选）
-       -> 受控食物目录与确定性计算
-       -> SQLite 餐次、每日累计与体重趋势
-  -> 微信纯文本回复
-```
+# 自然份量
+营养助手 一个鸡蛋，一碗米饭，半碗粥
 
-DeepSeek API 不负责最终营养数字。即使模型超时、余额不足或服务不可用，系统也会降级为确定性回复，不返回伪造结果。
+# 模糊表达
+营养助手 中午吃了大半份盖浇饭，喝了几口汤
+
+# 训练记录
+营养助手 练胸和三头，90分钟，高强度
+营养助手 今日步数 12000
+
+# 补充剂
+营养助手 蛋白粉一勺，肌酸5克
+
+# 情感支持（自动识别）
+营养助手 今天暴食了，控制不住
+营养助手 感冒了没胃口
+
+# 每日总结
+营养助手 日报
+
+# 品牌食品登记
+营养助手 登记食物 某品牌欧包 每100克 热量280kcal 蛋白质9 脂肪5 碳水50
+```
 
 ## 快速开始
 
@@ -42,24 +52,18 @@ DeepSeek API 不负责最终营养数字。即使模型超时、余额不足或�
 要求：Python 3.11+、[uv](https://docs.astral.sh/uv/)。
 
 ```powershell
-git clone https://github.com/DDDYT24/Wechat-Nutrition-Assistant.git
-cd Wechat-Nutrition-Assistant
+cd "Wechat-Nutrition-Assistant V1.2"
 Copy-Item .env.example .env
+# 编辑 .env：修改 USER_HMAC_SECRET 为随机值
 uv sync
 uv run nutrition-bot
 ```
 
-编辑本地 `.env`：
+打开 `http://127.0.0.1:8000/health` 看到 `"version": "1.2.0"` 即启动成功。
 
-- 必须更换 `USER_HMAC_SECRET`，建议使用至少 32 字节随机值。
-- 需要使用 DeepSeek 时填写 `DEEPSEEK_API_KEY`；不要把真实 Key 提交到仓库。
-- 使用公众号回调时再填写 `WECHAT_TOKEN`、`WECHAT_APP_ID` 和 `WECHAT_APP_SECRET`。
+### 2. 接入普通微信
 
-服务默认只监听 `127.0.0.1:8000`。打开 `http://127.0.0.1:8000/health`，看到 `ok: true` 即表示营养核心已启动。
-
-### 2. 接入普通微信私聊
-
-要求：Node.js 18+、一个专用微信测试小号。另开一个 PowerShell 窗口：
+要求：Node.js 18+、专用微信测试小号。另开终端：
 
 ```powershell
 cd integrations/wechat-bot
@@ -67,72 +71,46 @@ npm install
 .\start-nutrition-bot.ps1
 ```
 
-用测试小号扫描本机生成的二维码。登录后，其他好友可发送：
+用测试小号扫描终端二维码。登录后，用另一个微信号发送消息测试。
 
-```text
-营养助手 同意并开始
-营养助手 男，25岁，175cm，70kg，每周训练4次，练了2年，目标增肌
-营养助手 确认资料
-营养助手 米饭100g 鸡胸肉150g
-营养助手 今日汇总
-```
-
-V1.1 只处理带“营养助手”前缀的私聊文字；群聊、自动加好友、朋友圈、图片、语音和主动群发默认关闭。详细说明见 [普通微信接入文档](integrations/wechat-bot/NUTRITION.md)。
-
-### 3. 作为 MCP 使用
+### 3. MCP 工具（18 个）
 
 ```powershell
 uv run nutrition-mcp
 ```
 
-Codex 配置示例见 [docs/codex-mcp.example.toml](docs/codex-mcp.example.toml)。MCP 提供：
-
-`lookup_food`、`parse_meal`、`calculate_meal`、`save_meal`、`get_daily_balance`、`get_nutrient_gap`、`generate_weekly_review`、`begin_onboarding`、`record_profile_input`、`confirm_profile`、`calculate_energy_targets`、`register_custom_food`、`list_custom_foods`、`record_weight`、`get_weight_trend`、`delete_user_data` 等 18 个工具。
-
 ## 测试
 
-Python 营养核心：
-
 ```powershell
-uv run ruff check src tests
-uv run pytest -W error -q
-```
-
-微信适配器：
-
-```powershell
-cd integrations/wechat-bot
-npm run test:nutrition
-npm run test:analysis
+uv run pytest -q                    # 全部 41 个测试
+cd integrations/wechat-bot && npm run test:nutrition
 ```
 
 ## 项目结构
 
 ```text
-src/wechat_nutrition_bot/       Python 营养核心、HTTP 服务与 MCP
-tests/                          Python 自动化测试
-data/foods_v1.json              V1.1 受控食物目录
-skills/track-healthy-diet/       健康饮食 Agent Skill
-integrations/wechat-bot/         普通微信 Wechaty 接入适配器
-docs/PLAN_V1.1.md                版本方案、状态与验收标准
+src/wechat_nutrition_bot/       # Python 核心（22 模块）
+  ├── portions.py               🆕 份量单位系统
+  ├── exercise.py               🆕 训练/运动
+  ├── emotions.py               🆕 情感检测
+  ├── supplements.py            🆕 补充剂目录
+  ├── daily_summary.py          🆕 每日总结
+  ├── agent.py                  🔧 多意图 + 训练 + 情感
+  ├── parser.py                 🔧 中文数字 + 自然单位
+  └── ...
+data/foods_v2.json              🆕 1623 种食物（716 KB）
+integrations/wechat-bot/        微信适配器
+docs/V1.2_IMPROVEMENTS.md      需求分析与设计文档
 ```
 
-## 已知限制与安全说明
+## 安全说明
 
-- 普通微信通道基于 `wangrongding/wechat-bot`、Wechaty 和 `wechaty-puppet-wechat4u`，不是腾讯官方接口。只用专用小号；出现风险提示立即停止。
-- 当前上游 Wechaty/wechat4u 依赖链较旧。2026-07-17 发布审计报告 30 项生产依赖漏洞（18 moderate、10 high、2 critical），部分没有兼容修复。不要把该适配器暴露到公网，也不要在运行账户中保存重要聊天或资金。
-- 食物计算精度受输入重量、烹饪方式、食物目录和包装标签质量影响。信息不足时系统应追问，而不是输出伪精确数字。
-- 本项目面向一般健康成人的日常记录，不用于疾病诊断、医学营养治疗、药物调整、孕期/哺乳期或未成年人个体化处方。紧急或高风险情况请咨询合格专业人员。
-- 不要提交 `.env`、SQLite 数据库、微信登录记忆文件、二维码、日志、用户消息或任何 API Key。
+- 只用专用微信测试小号；普通微信通道使用非官方协议
+- 用户标识 HMAC 伪匿名化
+- DeepSeek API 只做语言理解，不输出营养数字
+- 信息不足时追问，不编造伪精确结果
+- 面向一般健康成人，不替代医疗专业建议
 
-## 版本状态
+## 许可证
 
-- 当前版本：`V1.1.0`
-- 已完成：营养核心、18 个 MCP 工具、Skill、微信公众号回调、普通微信适配器、扫码登录验证和自动化测试。
-- 待完成：普通微信真实饮食消息的完整端到端验收，以及 24–72 小时稳定性观察。
-
-变更记录见 [CHANGELOG.md](CHANGELOG.md)，方案与验收状态见 [docs/PLAN_V1.1.md](docs/PLAN_V1.1.md)。
-
-## 许可证与上游项目
-
-本项目自有代码以 [MIT License](LICENSE) 发布。`integrations/wechat-bot` 基于 [wangrongding/wechat-bot](https://github.com/wangrongding/wechat-bot) 修改，保留其原许可证和版权信息。更多说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+[MIT License](LICENSE)。`integrations/wechat-bot` 基于 [wangrongding/wechat-bot](https://github.com/wangrongding/wechat-bot)。

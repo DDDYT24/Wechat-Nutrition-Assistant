@@ -15,7 +15,7 @@ mcp = FastMCP(
         "Use controlled food data and deterministic calculations. "
         "Never invent nutrition values for unresolved foods. "
         "Collect and confirm an adult profile before deriving targets. "
-        "V1.1 is for general healthy-adult food logging, not medical treatment."
+        "V1.2 is for general healthy-adult food logging, not medical treatment."
     ),
     json_response=True,
 )
@@ -23,7 +23,7 @@ mcp = FastMCP(
 
 @mcp.tool()
 def lookup_food(query: str, limit: int = 5) -> dict[str, Any]:
-    """Search the controlled V1.1 food catalog and return sourced per-100g data."""
+    """Search the controlled V1.2 food catalog and return sourced per-100g data."""
     return service.lookup_food(query, limit)
 
 

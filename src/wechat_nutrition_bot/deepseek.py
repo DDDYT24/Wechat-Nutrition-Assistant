@@ -149,3 +149,38 @@ class DeepSeekClient:
         }
         validated = ProfileDraftData.model_validate(updates)
         return validated.model_dump(include=provided)
+
+    async def classify_intent(self, text: str) -> dict[str, Any]:
+        """V1.2: classify user intent before parsing. Returns structured intent + extracted data."""
+        if not self.client:
+            return {"intent": "meal_record", "confidence": 0.5, "notes": ["DeepSeek未配置，默认按饮食记录处理"]}
+        system = (
+            "你是用户意图分类器。分析用户消息，判断主要意图。"
+            "意图类型：meal_record(记录饮食)、training(训练/运动/步数)、"
+            "query(查询数据/今日/本周/目标)、emotion(情绪表达/抱怨/焦虑/暴食)、"
+            "profile(修改资料/设置)、other(其他)。"
+            "同时提取相关结构化信息："
+            "- 训练: type(力量/有氧/HIIT/柔韧/其他), duration_minutes, intensity(低/中/高), "
+            "  body_part, steps(步数), exercises(具体动作列表)"
+            "- 情绪: tone(positive/negative/neutral/anxious/guilty), "
+            "  keywords(提取的情绪关键词列表)"
+            "- 查询: query_type(today/week/goal/weight_trend/help)"
+            "只输出JSON: {intent, confidence, extracted:{...}, notes:[]}。"
+            "不要编造不在消息中的数据。"
+        )
+        response = await self.client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": text}],
+            response_format={"type": "json_object"},
+            temperature=0,
+            max_tokens=400,
+            stream=False,
+            extra_body={"thinking": {"type": "disabled"}},
+        )
+        payload = json.loads(response.choices[0].message.content or "{}")
+        return {
+            "intent": payload.get("intent", "meal_record"),
+            "confidence": payload.get("confidence", 0.5),
+            "extracted": payload.get("extracted", {}),
+            "notes": payload.get("notes", []),
+        }

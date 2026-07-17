@@ -714,8 +714,13 @@ class Repository:
         self, raw_user_id: str, request_id: str, status: str, response_text: str | None = None
     ) -> None:
         key = self.user_key(raw_user_id)
+        self.set_async_result_by_key(key, request_id, status, response_text)
+
+    def set_async_result_by_key(
+        self, user_key: str, request_id: str, status: str, response_text: str | None = None
+    ) -> None:
         with self.connection() as connection:
-            self._ensure_user(connection, key)
+            self._ensure_user(connection, user_key)
             connection.execute(
                 """
                 INSERT INTO async_results(user_key, request_id, status, response_text, updated_at)
@@ -726,20 +731,32 @@ class Repository:
                     response_text = excluded.response_text,
                     updated_at = excluded.updated_at
                 """,
-                (key, request_id, status, response_text, self._now()),
+                (user_key, request_id, status, response_text, self._now()),
             )
 
     def get_async_result(self, raw_user_id: str) -> dict[str, str | None] | None:
         key = self.user_key(raw_user_id)
+        return self.get_async_result_by_key(key)
+
+    def get_async_result_by_key(self, user_key: str) -> dict[str, str | None] | None:
         with self.connection() as connection:
             row = connection.execute(
                 """
                 SELECT request_id, status, response_text, updated_at
                 FROM async_results WHERE user_key = ?
                 """,
-                (key,),
+                (user_key,),
             ).fetchone()
         return dict(row) if row else None
+
+    def get_active_user_keys_for_date(self, day_iso: str) -> list[str]:
+        """Return all user_keys with meals on a given date. Used by daily summary scheduler."""
+        with self.connection() as connection:
+            rows = connection.execute(
+                "SELECT DISTINCT user_key FROM meals WHERE substr(eaten_at, 1, 10) = ?",
+                (day_iso,),
+            ).fetchall()
+        return [r["user_key"] for r in rows]
 
     def get_message_receipt(self, message_id: str) -> str | None:
         with self.connection() as connection:

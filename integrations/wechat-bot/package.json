@@ -1,8 +1,8 @@
 {
   "name": "wechat-nutrition-assistant-adapter",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
-  "description": "Experimental Wechaty adapter for WeChat Nutrition Assistant V1.1",
+  "description": "Experimental Wechaty adapter for WeChat Nutrition Assistant V1.2",
   "main": "index.js",
   "type": "module",
   "scripts": {

@@ -34,7 +34,7 @@ class FoodRecord(BaseModel):
     category: str
     nutrients_per_100g: Nutrients
     source: str
-    data_status: Literal["seed", "verified", "label"] = "seed"
+    data_status: Literal["seed", "verified", "label", "published"] = "seed"
     notes: str = ""
 
 

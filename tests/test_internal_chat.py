@@ -123,7 +123,7 @@ async def test_internal_chat_preserves_meal_idempotency(settings):
 
     assert first.status_code == 200
     assert duplicate.status_code == 200
-    assert "已记为早餐" in first.json()["reply"]
+    assert "早餐已记录" in first.json()["reply"]
     assert "今日累计：480 kcal" in duplicate.json()["reply"]
     assert app.state.components.service.get_daily_balance(
         user_id, date(2026, 7, 16)

@@ -5,13 +5,16 @@ from datetime import datetime
 from typing import Any
 
 from .deepseek import DeepSeekClient
+from .emotions import detect_emotion
+from .exercise import ExerciseService
 from .models import CustomFoodInput, MealItemInput, Nutrients
 from .profile_parser import ProfileParser
+from .supplements import lookup_supplement, resolve_supplement_grams
 from .service import NutritionService
 from .time_utils import MEAL_PERIOD_LABELS, local_day
 
 CONSENT_TEXT = (
-    "欢迎使用微信营养记录助手 V1.1。\n"
+    "欢迎使用微信营养记录助手 V1.2。\n"
     "为了估算每日目标并记录饮食，需要保存你的年龄、生理性别、身高、体重、活动与训练情况。"
     "微信标识会经 HMAC 匿名化，资料只用于本功能；可随时发送“删除全部数据”。\n"
     "本工具面向一般健康成年人，不替代医生或注册营养师。若同意，请回复：同意并开始"
@@ -26,11 +29,16 @@ PROFILE_PROMPT = (
 )
 
 HELP_TEXT = (
-    "我是 V1.1 饮食记录助手。\n"
+    "我是 V1.2 饮食记录助手。\n"
     "记饮食：米饭200克，鸡胸肉150克，烹调油8克。\n"
-    "包装食品：登记食物 品牌牛奶 每100克 热量250kcal 蛋白质8 脂肪9 碳水30。\n"
-    "可发送：今日、本周、我的目标、修改资料、记录体重70kg、帮助。\n"
-    "食物数值来自受控目录或你提供的包装标签；没有重量或数据时不会假装精确。"
+    "也可用碗/个/杯等份量：一碗米饭，一个鸡蛋，一杯牛奶。\n"
+    "模糊份量也支持：几口米饭、半碗面条、大半份盖浇饭。\n"
+    "记训练：练胸和三头，90分钟 · 今日步数12000。\n"
+    "补充剂：蛋白粉一勺、肌酸5克、鱼油2粒。\n"
+    "包装食品：登记食物 品牌名 每100克 热量… 蛋白质… 脂肪… 碳水…\n"
+    "可发送：今日、今日总结、本周、体重趋势、我的目标、修改资料、体重72kg、帮助。\n"
+    "食物数值来自中国食物成分表第6版或你提供的包装标签。\n"
+    "使用默认份量时会标注估算，没有数据时不会假装精确。"
 )
 
 FIELD_LABELS = {
@@ -245,6 +253,45 @@ class NutritionAgent:
                 return PROFILE_PROMPT
             return CONSENT_TEXT
 
+        # ── V1.2: emotion detection (before any other processing) ──
+        emotion = detect_emotion(normalized)
+        if emotion:
+            if emotion.should_block_meal_parsing:
+                return emotion.response
+            # For non-blocking emotions, note it and continue to normal processing.
+            # The tone can be stored for context (future: user_memory.py).
+
+        # ── V1.2: training / exercise detection ──
+        training_session = ExerciseService.parse_training_text(normalized)
+        if training_session and (training_session.duration_minutes > 0 or training_session.steps):
+            profile = self.service.repository.get_profile(user_id)
+            weight = profile.weight_kg if profile else None
+            reply = ExerciseService.format_session_reply(training_session, weight)
+            if training_session.duration_minutes >= 10 or training_session.steps:
+                return reply
+
+        # ── V1.2: supplement detection (no profile required) ──
+        _cn_digits = {"一": 1, "两": 2, "二": 2, "三": 3, "四": 4, "五": 5,
+                       "六": 6, "七": 7, "八": 8, "九": 9, "十": 10}
+        _cn_num_pat = r"(?:一|两|二|三|四|五|六|七|八|九|十|\d+(?:\.\d+)?)"
+        supp_match = re.match(
+            rf"(.+?)\s*({_cn_num_pat})\s*(勺|粒|颗|片|克|g)",
+            normalized,
+        )
+        if supp_match:
+            supp_name = supp_match.group(1).strip()
+            raw_num = supp_match.group(2)
+            supp_amount = float(_cn_digits.get(raw_num, raw_num))
+            supp_unit = supp_match.group(3)
+            supp_result = resolve_supplement_grams(supp_name, supp_amount, supp_unit)
+            if supp_result:
+                supp_grams, supp_kcal, supp_note = supp_result
+                return (
+                    f"已记录补充剂：{supp_name} {supp_amount:.0f}{supp_unit}\n"
+                    f"  约 {supp_grams:.0f}g · {supp_kcal} kcal\n"
+                    + (f"  💡 {supp_note}" if supp_note else "")
+                )
+
         onboarding_reply = await self._handle_onboarding(user_id, normalized)
         if onboarding_reply is not None:
             return onboarding_reply
@@ -255,6 +302,25 @@ class NutritionAgent:
             return self.service.generate_weekly_review(user_id)["review"]
         if normalized == "我的目标":
             return self._profile_target(user_id)
+        if normalized in {"今日总结", "日报", "今日报告"}:
+            from .daily_summary import generate_daily_summary
+            summary = generate_daily_summary(self.service, user_id)
+            if summary:
+                return summary
+            return "今天还没有饮食记录，无法生成日报。发送「帮助」查看如何记录。"
+        if normalized in {"体重趋势", "体重"}:
+            trend = self.service.get_weight_trend(user_id)
+            if not trend["records"]:
+                return '还没有体重记录。发送「体重72kg」开始记录。'
+            lines = [f"最近 {trend['count']} 条体重记录："]
+            for r in trend["records"][-7:]:
+                lines.append(f"  {r['measured_at'][:10]}  {r['weight_kg']}kg")
+            if trend["change_kg"] is not None:
+                direction = "↓" if trend["change_kg"] < 0 else ("↑" if trend["change_kg"] > 0 else "→")
+                lines.append(f"变化：{direction} {trend['change_kg']:+.1f}kg")
+            if trend["ready_for_target_calibration"]:
+                lines.append("💡 已有足够数据，可以考虑校准目标。")
+            return "\n".join(lines)
         if normalized == "结果":
             pending = self.service.repository.get_async_result(user_id)
             if not pending:
@@ -264,14 +330,13 @@ class NutritionAgent:
             return pending["response_text"] or "本次分析未得到可用结果，请重新发送。"
 
         weight_match = re.fullmatch(
-            r"记录体重\s*(\d+(?:\.\d+)?)\s*(?:kg|公斤|千克)", normalized
+            r"(?:记录)?\s*体重\s*[:：]?\s*(\d+(?:\.\d+)?)\s*(?:kg|公斤|千克)?", normalized
         )
         if weight_match:
             result = self.service.record_weight(
                 user_id, float(weight_match.group(1)), measured_at=eaten_at
             )
-            return f"体重已记录：{result['weight_kg']:.1f}kg。"
-
+            return f"体重已记录：{result['weight_kg']:.1f}kg。发送“体重趋势”查看变化。"
         if normalized.startswith(("登记食物", "新增食物")):
             custom = self._parse_custom_food(normalized)
             if not custom:
@@ -302,12 +367,19 @@ class NutritionAgent:
         parsed = await self.service.parser.parse(normalized, custom_names)
         if not parsed.items:
             return (
-                "我还不能可靠识别这条饮食记录。请写明食物和克数，例如："
-                "米饭200克，鸡胸肉150克，烹调油8克。"
+                "我还不能可靠识别这条饮食记录。请写明食物和份量，例如：\n"
+                "• 米饭200克，鸡胸肉150克，烹调油8克\n"
+                "• 一碗米饭，一个鸡蛋，一杯豆浆\n"
+                "• 若是包装食品（如品牌欧包），可先登记：\n"
+                "  登记食物 名称 每100克 热量… 蛋白质… 脂肪… 碳水…"
             )
         missing = [item.name for item in parsed.items if item.grams is None]
         if missing:
-            return f"还需要这些食物的克数：{'、'.join(missing)}。没有重量时不会输出伪精确热量。"
+            return (
+                f"还需要这些食物的份量：{'、'.join(missing)}。\n"
+                "可以写克数（200克），也可以用碗/个/杯等（一碗、一个、一杯）。\n"
+                "没有重量时不会输出伪精确热量。"
+            )
 
         custom_by_name = {
             self.service.catalog._normalize(name): food
@@ -338,8 +410,11 @@ class NutritionAgent:
                     "“黑巧克力10克”；若是包装食品，请发送包装每100克的热量、蛋白质、脂肪和碳水进行登记。"
                 )
             return (
-                f"尚未收录：{'、'.join(unresolved)}。我已记下补库请求，但不会编造营养数字。"
-                "可发送“登记食物 名称 每100克 热量… 蛋白质… 脂肪… 碳水…”。"
+                f"尚未收录：{'、'.join(unresolved)}。\n"
+                "若是包装食品，可发送：\n"
+                "登记食物 [名称] 每100克 热量[kcal] 蛋白质[g] 脂肪[g] 碳水[g]\n"
+                "例如：登记食物 某品牌欧包 每100克 热量280kcal 蛋白质9 脂肪5 碳水50\n"
+                "登记后可直接用名称记录，下次就认识了。"
             )
 
         saved = self.service.save_meal(
@@ -353,14 +428,39 @@ class NutritionAgent:
         day = local_day(eaten_at)
         daily = self.service.get_daily_balance(user_id, day)
         period = saved["meal_period"]
+        # Build a compact item list
+        item_lines: list[str] = []
+        low_confidence_items: list[str] = []
+        composite_prompts: list[str] = []
+        for item in parsed.items:
+            food = self.service.catalog.exact(item.name)
+            alias_match = next(
+                (f" ({n})" for n, f in self.service.catalog.all_aliases()
+                 if f and f.name == item.name and n != item.name),
+                "",
+            )
+            if item.grams:
+                item_lines.append(f"  {item.name}{alias_match} {item.grams:.0f}g")
+            if item.confidence < 0.6:
+                low_confidence_items.append(item.name)
+            if item.brand and item.brand.startswith("⚠"):
+                composite_prompts.append(item.brand[1:])
+
         lines = [
-            self._format_nutrients(
-                f"已记为{MEAL_PERIOD_LABELS[period]}，本餐：", calculation["totals"]
-            ),
+            f"{MEAL_PERIOD_LABELS[period]}已记录",
+            "\n".join(item_lines) if item_lines else normalized,
+            "",
+            self._format_nutrients("本餐：", calculation["totals"]),
             self._format_nutrients("今日累计：", daily["intake"]),
         ]
         if daily["remaining"]:
             lines.append(self._format_nutrients("距今日目标：", daily["remaining"]))
+        if low_confidence_items:
+            lines.append(
+                f"\n⚠️ {'、'.join(low_confidence_items)} 使用默认份量估算，实际可能有 ±20-30% 偏差"
+            )
+        if composite_prompts:
+            lines.append(f"\n💡 {composite_prompts[0]}")
         if calculation["warnings"]:
-            lines.append(calculation["warnings"][0])
+            lines.append(f"\n⚠ {calculation['warnings'][0]}")
         return "\n".join(lines)

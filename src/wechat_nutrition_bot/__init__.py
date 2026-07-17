@@ -1,3 +1,3 @@
-"""WeChat Nutrition Bot V1.1."""
+"""WeChat Nutrition Bot V1.2."""
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"

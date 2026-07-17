@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wechat-nutrition-bot"
-version = "1.1.0"
+version = "1.2.0"
 description = "V1.1 chat-first WeChat nutrition logger with deterministic targets and MCP tools"
 readme = "README.md"
 requires-python = ">=3.11"

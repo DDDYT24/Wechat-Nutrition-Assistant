@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     app_host: str = "127.0.0.1"
     app_port: int = 8000
     database_path: Path = Path("data/runtime/nutrition_bot.sqlite3")
-    food_catalog_path: Path = Path("data/foods_v1.json")
+    food_catalog_path: Path = Path("data/foods_v2.json")
     user_hmac_secret: str = Field(default="development-only-change-me", min_length=16)
 
     wechat_token: str = ""

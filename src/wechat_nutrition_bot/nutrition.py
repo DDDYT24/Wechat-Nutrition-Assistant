@@ -50,7 +50,7 @@ class NutritionCalculator:
                 )
             )
             if food.data_status == "seed":
-                warnings.append(f"{food.name}使用 V1.1 种子数据，正式使用前需核验来源")
+                warnings.append(f"{food.name}使用种子数据，正式使用前需核验来源")
             if item.cooking_method and item.cooking_method not in food.notes:
                 warnings.append(
                     f"{food.name}未单独计入“{item.cooking_method}”可能产生的额外油、糖或酱料"

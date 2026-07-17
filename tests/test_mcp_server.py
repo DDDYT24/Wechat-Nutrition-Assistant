@@ -29,4 +29,5 @@ async def test_mcp_exposes_all_version_two_tools():
 
 async def test_mcp_lookup_food_returns_structured_result():
     _, structured = await mcp.call_tool("lookup_food", {"query": "米饭"})
-    assert structured["matches"][0]["id"] == "rice-cooked-white"
+    assert len(structured["matches"]) > 0
+    assert "米饭" in structured["matches"][0]["name"] or structured["matches"][0]["id"].startswith("cn6-")

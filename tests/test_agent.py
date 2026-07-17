@@ -50,7 +50,7 @@ async def test_agent_asks_for_missing_grams(components):
     agent = NutritionAgent(components.service, components.deepseek)
     await complete_onboarding(agent)
     reply = await agent.handle_text("user-a", "吃了米饭和鸡胸肉")
-    assert "还需要这些食物的克数" in reply
+    assert "还需要这些食物的份量" in reply
     assert "不会输出伪精确热量" in reply
 
 

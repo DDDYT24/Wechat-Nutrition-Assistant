@@ -9,12 +9,15 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from defusedxml import ElementTree
+from contextlib import asynccontextmanager
+
 from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from .agent import CONSENT_TEXT, NutritionAgent
 from .config import Settings
 from .container import Components, build_components
+from .daily_summary import DailySummaryScheduler
 from .time_utils import SHANGHAI_TZ
 
 INTERNAL_CHAT_TOKEN_LABEL = b"personal-wechat-bridge-v1"
@@ -124,7 +127,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     agent = NutritionAgent(
         components.service, components.deepseek, components.profile_parser
     )
-    app = FastAPI(title="WeChat Nutrition Bot", version="1.1.0")
+    # ── daily summary scheduler ──
+    summary_scheduler = DailySummaryScheduler(components.service)
+
+    @asynccontextmanager
+    async def _lifespan(_app: FastAPI):
+        summary_scheduler.start()
+        yield
+        summary_scheduler.stop()
+
+    app = FastAPI(title="WeChat Nutrition Bot", version="1.2.0", lifespan=_lifespan)
     app.state.components = components
     app.state.agent = agent
 
@@ -132,7 +144,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def health() -> dict[str, object]:
         return {
             "status": "ok",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "deepseek_configured": components.deepseek.enabled,
             "catalog_version": components.catalog.version,
         }
@@ -176,7 +188,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         encrypt_type: str = Query(default=""),
     ) -> Response:
         if encrypt_type:
-            raise HTTPException(status_code=400, detail="V1.1 only supports plaintext mode")
+            raise HTTPException(status_code=400, detail="V1.2 only supports plaintext mode")
         if not verify_signature(components.settings.wechat_token, timestamp, nonce, signature):
             raise HTTPException(status_code=403, detail="invalid signature")
         try:
@@ -222,9 +234,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             else:
                 return Response(content="success", media_type="text/plain")
         elif message.msg_type in {"image", "voice", "video", "shortvideo"}:
-            reply = "V1.1 暂不读取图片或语音。请改用文字，并写明食物、克数、烹饪方式和用油量。"
+            reply = "V1.2 暂不读取图片或语音。请改用文字，并写明食物、份量、烹饪方式和用油量。"
         elif message.msg_type != "text":
-            reply = "V1.1 目前只处理文字饮食记录。发送“帮助”查看示例。"
+            reply = "V1.2 目前只处理文字饮食记录。发送“帮助”查看示例。"
         else:
             components.repository.save_diagnostic_message(
                 message.from_user,

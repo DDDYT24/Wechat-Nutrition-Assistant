@@ -16,7 +16,7 @@ $secret = ($secretLine -replace '^USER_HMAC_SECRET=', '').Trim().Trim("'", '"')
 $hmac = [System.Security.Cryptography.HMACSHA256]::new([System.Text.Encoding]::UTF8.GetBytes($secret))
 try {
   $tokenBytes = $hmac.ComputeHash([System.Text.Encoding]::UTF8.GetBytes('personal-wechat-bridge-v1'))
-  $env:NUTRITION_BRIDGE_TOKEN = [Convert]::ToHexString($tokenBytes).ToLowerInvariant()
+  $env:NUTRITION_BRIDGE_TOKEN = [System.BitConverter]::ToString($tokenBytes).Replace('-', '').ToLowerInvariant()
 } finally {
   $hmac.Dispose()
 }

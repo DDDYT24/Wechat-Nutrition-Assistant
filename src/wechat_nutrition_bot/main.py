@@ -12,6 +12,9 @@ def run() -> None:
         host=settings.app_host,
         port=settings.app_port,
         reload=settings.app_env == "development",
+        reload_excludes=[".venv/**", ".git/**", "__pycache__/**", "*.pyc", ".data/**"]
+        if settings.app_env == "development"
+        else None,
         access_log=False,
     )
 
