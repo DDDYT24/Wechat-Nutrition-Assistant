@@ -70,7 +70,9 @@ def lookup_supplement(name: str) -> Supplement | None:
     return SUPPLEMENTS.get(name.lower().strip())
 
 
-def resolve_supplement_grams(name: str, amount: float, unit: str) -> tuple[float, float, str] | None:
+def resolve_supplement_grams(
+    name: str, amount: float, unit: str,
+) -> tuple[float, float, str] | None:
     """Convert supplement amount+unit to estimated grams and kcal.
 
     Returns (grams, kcal, note) or None if not found.
@@ -78,10 +80,7 @@ def resolve_supplement_grams(name: str, amount: float, unit: str) -> tuple[float
     sup = lookup_supplement(name)
     if not sup:
         return None
-    if unit in {"勺", "scoop", "匙"}:
-        grams = amount * sup.grams_per_unit
-        kcal = amount * sup.kcal_per_unit
-    elif unit in {"粒", "颗", "片", "capsule", "tablet"}:
+    if unit in {"勺", "scoop", "匙"} or unit in {"粒", "颗", "片", "capsule", "tablet"}:
         grams = amount * sup.grams_per_unit
         kcal = amount * sup.kcal_per_unit
     elif unit in {"g", "克"}:

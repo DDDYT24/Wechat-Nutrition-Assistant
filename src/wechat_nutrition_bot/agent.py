@@ -9,8 +9,8 @@ from .emotions import detect_emotion
 from .exercise import ExerciseService
 from .models import CustomFoodInput, MealItemInput, Nutrients
 from .profile_parser import ProfileParser
-from .supplements import lookup_supplement, resolve_supplement_grams
 from .service import NutritionService
+from .supplements import resolve_supplement_grams
 from .time_utils import MEAL_PERIOD_LABELS, local_day
 
 CONSENT_TEXT = (
@@ -255,9 +255,8 @@ class NutritionAgent:
 
         # ── V1.2: emotion detection (before any other processing) ──
         emotion = detect_emotion(normalized)
-        if emotion:
-            if emotion.should_block_meal_parsing:
-                return emotion.response
+        if emotion and emotion.should_block_meal_parsing:
+            return emotion.response
             # For non-blocking emotions, note it and continue to normal processing.
             # The tone can be stored for context (future: user_memory.py).
 
@@ -316,7 +315,12 @@ class NutritionAgent:
             for r in trend["records"][-7:]:
                 lines.append(f"  {r['measured_at'][:10]}  {r['weight_kg']}kg")
             if trend["change_kg"] is not None:
-                direction = "↓" if trend["change_kg"] < 0 else ("↑" if trend["change_kg"] > 0 else "→")
+                if trend["change_kg"] < 0:
+                    direction = "↓"
+                elif trend["change_kg"] > 0:
+                    direction = "↑"
+                else:
+                    direction = "→"
                 lines.append(f"变化：{direction} {trend['change_kg']:+.1f}kg")
             if trend["ready_for_target_calibration"]:
                 lines.append("💡 已有足够数据，可以考虑校准目标。")

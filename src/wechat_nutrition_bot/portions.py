@@ -214,7 +214,7 @@ class PortionResolver:
         if unit and unit.lower() in {"kg", "公斤", "千克"}:
             return PortionEstimate(grams=amount * 1000, confidence=1.0, unit_used="kg")
 
-        if unit and unit.lower() in {"ml", "毫升", "ml"}:
+        if unit and unit.lower() in {"ml", "毫升"}:
             # rough: most beverages are ~1 g/ml
             return PortionEstimate(grams=amount, confidence=0.85, unit_used="ml",
                                    note="ml→g 按密度 1.0 估算，高脂/高糖液体可能偏轻")
@@ -225,7 +225,8 @@ class PortionResolver:
             norm_food = _normalize(food_name)
             # exact match first
             for key, grams in unit_map.items():
-                if _normalize(key) == norm_food or _normalize(key) in norm_food or norm_food in _normalize(key):
+                nk = _normalize(key)
+                if nk == norm_food or nk in norm_food or norm_food in nk:
                     return PortionEstimate(
                         grams=round(grams * amount, 1),
                         confidence=0.85,

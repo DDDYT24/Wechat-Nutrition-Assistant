@@ -15,7 +15,6 @@ from .portions import (
     COMPOSITE_FOODS,
     VAGUE_QUANTIFIERS,
     PortionResolver,
-    _normalize as p_normalize,
 )
 
 COOKING_METHODS = ["清蒸", "水煮", "煮", "炒", "煎", "炸", "烤", "炖", "焖", "凉拌", "红烧", "卤"]
@@ -37,7 +36,7 @@ GRAM_FACTORS = {"g": 1.0, "克": 1.0, "kg": 1000.0, "公斤": 1000.0, "千克": 
 
 
 class MealParser:
-    """Parse explicit gram-based inputs first, natural units second, then optionally ask DeepSeek."""
+    """Parse gram inputs first, natural units second, then optionally ask DeepSeek."""
 
     def __init__(self, catalog: FoodCatalog, deepseek: DeepSeekClient):
         self.catalog = catalog
@@ -217,7 +216,6 @@ class MealParser:
         est = self.resolver.resolve(food_name, num_val, unit)
         if not est:
             return None
-        match_pos = match.start()  # for _method_near
         return (est.grams, unit, num_val, est.confidence, est.note)
 
     def _match_vague_quantifier(

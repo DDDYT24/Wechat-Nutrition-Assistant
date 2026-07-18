@@ -153,7 +153,10 @@ class DeepSeekClient:
     async def classify_intent(self, text: str) -> dict[str, Any]:
         """V1.2: classify user intent before parsing. Returns structured intent + extracted data."""
         if not self.client:
-            return {"intent": "meal_record", "confidence": 0.5, "notes": ["DeepSeek未配置，默认按饮食记录处理"]}
+            return {
+                "intent": "meal_record", "confidence": 0.5,
+                "notes": ["DeepSeek未配置，默认按饮食记录处理"],
+            }
         system = (
             "你是用户意图分类器。分析用户消息，判断主要意图。"
             "意图类型：meal_record(记录饮食)、training(训练/运动/步数)、"
