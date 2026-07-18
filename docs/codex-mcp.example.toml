@@ -1,0 +1,14 @@
+# Codex MCP example for this repository.
+# Replace the command paths with absolute paths on your machine.
+# Never place API keys or Authorization values in this file.
+
+[mcp_servers.wechat_nutrition]
+command = "uv"
+args = ["--directory", "C:/path/to/Wechat-Nutrition-Assistant", "run", "nutrition-mcp"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+
+[mcp_servers.wechat_nutrition.env]
+DATABASE_PATH = "C:/path/to/Wechat-Nutrition-Assistant/data/runtime/nutrition_bot.sqlite3"
+FOOD_CATALOG_PATH = "C:/path/to/Wechat-Nutrition-Assistant/data/foods_v1.json"
+USER_HMAC_SECRET = "replace-with-a-long-random-secret"
