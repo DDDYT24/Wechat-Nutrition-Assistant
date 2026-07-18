@@ -9,10 +9,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 
 from .service import NutritionService
-from .time_utils import SHANGHAI_TZ, as_shanghai, local_day
+from .time_utils import as_shanghai, local_day
 
 logger = logging.getLogger(__name__)
 
@@ -57,8 +57,16 @@ def generate_daily_summary(
 
     if targets:
         # Progress bars (ASCII)
-        energy_pct = min(100, int(intake["energy_kcal"] / targets["energy_kcal"] * 100)) if targets["energy_kcal"] else 0
-        protein_pct = min(100, int(intake["protein_g"] / targets["protein_g"] * 100)) if targets["protein_g"] else 0
+        energy_pct = (
+            min(100, int(intake["energy_kcal"] / targets["energy_kcal"] * 100))
+            if targets["energy_kcal"]
+            else 0
+        )
+        protein_pct = (
+            min(100, int(intake["protein_g"] / targets["protein_g"] * 100))
+            if targets["protein_g"]
+            else 0
+        )
         bar_e = _bar(energy_pct)
         bar_p = _bar(protein_pct)
         lines.append(f"  热量进度  {bar_e} {energy_pct}%  "
@@ -80,7 +88,7 @@ def generate_daily_summary(
         lines.append(f"\n  本周日均  {avg['energy_kcal']:.0f} kcal  "
                      f"({gap_data['days_with_records']}天记录)")
 
-    lines.append(f"\n  明天继续加油！发送「帮助」查看功能。")
+    lines.append("\n  明天继续加油！发送「帮助」查看功能。")
     return "\n".join(lines)
 
 
@@ -135,7 +143,10 @@ class DailySummaryScheduler:
         if self._task is not None and not self._task.done():
             return
         self._task = asyncio.create_task(self._run_loop())
-        logger.info("Daily summary scheduler started (trigger at %d:00 Shanghai)", SUMMARY_SCHEDULE_HOUR)
+        logger.info(
+            "Daily summary scheduler started (trigger at %d:00 Shanghai)",
+            SUMMARY_SCHEDULE_HOUR,
+        )
 
     def stop(self) -> None:
         """Stop the scheduler."""
@@ -153,10 +164,6 @@ class PendingSummary:
     def get_pending(self, user_id: str) -> str | None:
         """Return today's pending summary if available, or None."""
         today = local_day()
-        result = self.service.repository.get_async_result(
-            user_id  # repository.user_key() is called inside get_async_result
-        )
-        # Actually get_async_result takes raw_user_id
         stored = self.service.repository.get_async_result(user_id)
         if not stored:
             return None

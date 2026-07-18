@@ -8,8 +8,7 @@ Training expenditure is recorded but NOT automatically added to food budgets
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import date, datetime
-from typing import Any
+from datetime import date
 
 # ── constants ────────────────────────────────────────────────────────────────
 
@@ -91,7 +90,8 @@ class ExerciseService:
 
     @staticmethod
     def parse_training_text(text: str) -> ExerciseSession | None:
-        """Rule-based extraction of training details from free text.  Fallback when DeepSeek unavailable.
+        """Rule-based extraction of training details from free text.
+        Fallback when DeepSeek unavailable.
 
         Recognizes patterns like:
         - "练胸和三头，90分钟，中高强度"
@@ -106,7 +106,9 @@ class ExerciseService:
         # Detect training type
         training_type = "其他"
         detected_parts: list[str] = []
-        if any(t in text for t in ("练胸", "卧推", "飞鸟", "俯卧撑", "推举", "三头", "二头", "手臂")):
+        if any(
+            t in text for t in ("练胸", "卧推", "飞鸟", "俯卧撑", "推举", "三头", "二头", "手臂")
+        ):
             training_type = "力量训练"
             detected_parts.extend(["胸", "三头"] if "三头" in text else ["胸"])
         if any(t in text for t in ("练腿", "深蹲", "硬拉", "腿举", "箭步")):

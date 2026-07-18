@@ -42,7 +42,17 @@ EMOTION_PATTERNS: list[tuple[list[str], str, str, bool]] = [
     ),
     # —— discouragement / plateau ——
     (
-        ["没效果", "平台期", "平台", "想放弃", "太慢了", "看不到变化", "没变化", "没瘦", "没减下来"],
+        [
+            "没效果",
+            "平台期",
+            "平台",
+            "想放弃",
+            "太慢了",
+            "看不到变化",
+            "没变化",
+            "没瘦",
+            "没减下来",
+        ],
         "anxious",
         (
             '我理解这种感觉。体重变化本来就不是线性的——水分、睡眠、压力都会影响短期数据。\n'
@@ -155,7 +165,6 @@ def detect_emotion(text: str) -> EmotionResult | None:
     if not text or not text.strip():
         return None
 
-    text_lower = text.lower()
     best_match: tuple[int, EmotionResult] | None = None
 
     for keywords, tone, response, block in EMOTION_PATTERNS:

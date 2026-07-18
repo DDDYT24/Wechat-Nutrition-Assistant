@@ -56,11 +56,12 @@ class FoodCatalog:
                 aliases.append(short)
         # Compound-word shortening: drop the last character when reasonable
         # e.g. "鸡胸脯肉" → "鸡胸肉", "猪五花肉" → "五花肉"
-        if len(cleaned) >= 4 and not any(c in cleaned for c in "奶油菜汤酱汁粉糕酥饼"):
-            if cleaned.endswith("脯肉"):
-                aliases.append(cleaned[:-2] + "肉")
-            elif cleaned.endswith("腿肉"):
-                aliases.append(cleaned[:-2] + "肉")
+        if (
+            len(cleaned) >= 4
+            and not any(c in cleaned for c in "奶油菜汤酱汁粉糕酥饼")
+            and (cleaned.endswith("脯肉") or cleaned.endswith("腿肉"))
+        ):
+            aliases.append(cleaned[:-2] + "肉")
         return [a for a in dict.fromkeys(aliases) if a]
 
     @staticmethod
