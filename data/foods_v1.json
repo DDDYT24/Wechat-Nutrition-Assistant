@@ -1,0 +1,286 @@
+{
+  "catalog_version": "1.0-seed",
+  "disclaimer": "Engineering seed data for Version 1 validation only. Replace or verify against an authorized Chinese food-composition source before production use.",
+  "foods": [
+    {
+      "id": "rice-cooked-white",
+      "name": "熟白米饭",
+      "aliases": ["米饭", "白米饭", "熟米饭"],
+      "category": "主食",
+      "nutrients_per_100g": {"energy_kcal": 116, "protein_g": 2.6, "fat_g": 0.3, "carbohydrate_g": 25.9, "fiber_g": 0.3},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "熟制可食部分；含水量会随烹饪变化"
+    },
+    {
+      "id": "rice-raw-white",
+      "name": "生白米",
+      "aliases": ["大米", "生米", "白米"],
+      "category": "主食",
+      "nutrients_per_100g": {"energy_kcal": 365, "protein_g": 7.1, "fat_g": 0.7, "carbohydrate_g": 80.0, "fiber_g": 1.3},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "生重；不可与熟米饭重量混用"
+    },
+    {
+      "id": "noodles-cooked-plain",
+      "name": "熟面条",
+      "aliases": ["面条", "白面条", "煮面"],
+      "category": "主食",
+      "nutrients_per_100g": {"energy_kcal": 137, "protein_g": 4.5, "fat_g": 2.1, "carbohydrate_g": 25.0, "fiber_g": 1.2},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "不含汤、浇头和额外用油"
+    },
+    {
+      "id": "oats-dry",
+      "name": "干燕麦片",
+      "aliases": ["燕麦", "燕麦片", "干燕麦"],
+      "category": "主食",
+      "nutrients_per_100g": {"energy_kcal": 379, "protein_g": 13.2, "fat_g": 6.5, "carbohydrate_g": 67.7, "fiber_g": 10.1},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "干重"
+    },
+    {
+      "id": "bread-white",
+      "name": "白面包",
+      "aliases": ["白吐司", "吐司", "面包"],
+      "category": "主食",
+      "nutrients_per_100g": {"energy_kcal": 265, "protein_g": 9.0, "fat_g": 3.2, "carbohydrate_g": 49.0, "fiber_g": 2.7},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "具体品牌应优先读取包装营养标签"
+    },
+    {
+      "id": "chicken-breast-cooked",
+      "name": "熟鸡胸肉",
+      "aliases": ["鸡胸", "鸡胸肉", "熟鸡胸"],
+      "category": "肉蛋水产",
+      "nutrients_per_100g": {"energy_kcal": 165, "protein_g": 31.0, "fat_g": 3.6, "carbohydrate_g": 0, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "去皮熟重；不含额外烹调油"
+    },
+    {
+      "id": "egg-whole-cooked",
+      "name": "熟鸡蛋",
+      "aliases": ["鸡蛋", "水煮蛋", "煮鸡蛋"],
+      "category": "肉蛋水产",
+      "nutrients_per_100g": {"energy_kcal": 143, "protein_g": 12.6, "fat_g": 9.5, "carbohydrate_g": 0.7, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "去壳可食部分"
+    },
+    {
+      "id": "beef-lean-cooked",
+      "name": "熟瘦牛肉",
+      "aliases": ["牛肉", "瘦牛肉", "熟牛肉"],
+      "category": "肉蛋水产",
+      "nutrients_per_100g": {"energy_kcal": 250, "protein_g": 26.0, "fat_g": 15.0, "carbohydrate_g": 0, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "部位和肥瘦会显著改变结果"
+    },
+    {
+      "id": "pork-lean-cooked",
+      "name": "熟瘦猪肉",
+      "aliases": ["瘦猪肉", "猪瘦肉", "熟猪肉"],
+      "category": "肉蛋水产",
+      "nutrients_per_100g": {"energy_kcal": 242, "protein_g": 27.3, "fat_g": 14.0, "carbohydrate_g": 0, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "不含额外烹调油"
+    },
+    {
+      "id": "salmon-cooked",
+      "name": "熟三文鱼",
+      "aliases": ["三文鱼", "鲑鱼", "熟鲑鱼"],
+      "category": "肉蛋水产",
+      "nutrients_per_100g": {"energy_kcal": 208, "protein_g": 20.4, "fat_g": 13.4, "carbohydrate_g": 0, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "熟重；品种会影响脂肪含量"
+    },
+    {
+      "id": "shrimp-cooked",
+      "name": "熟虾仁",
+      "aliases": ["虾", "虾仁", "熟虾"],
+      "category": "肉蛋水产",
+      "nutrients_per_100g": {"energy_kcal": 99, "protein_g": 24.0, "fat_g": 0.3, "carbohydrate_g": 0.2, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "可食部分熟重"
+    },
+    {
+      "id": "tofu-firm",
+      "name": "北豆腐",
+      "aliases": ["豆腐", "老豆腐", "北豆腐"],
+      "category": "豆制品",
+      "nutrients_per_100g": {"energy_kcal": 76, "protein_g": 8.1, "fat_g": 4.8, "carbohydrate_g": 1.9, "fiber_g": 0.3},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "不同凝固剂和含水量差异较大"
+    },
+    {
+      "id": "soy-milk-unsweetened",
+      "name": "无糖豆浆",
+      "aliases": ["豆浆", "无糖豆浆"],
+      "category": "豆制品",
+      "nutrients_per_100g": {"energy_kcal": 33, "protein_g": 3.3, "fat_g": 1.8, "carbohydrate_g": 0.7, "fiber_g": 0.6},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "有糖豆浆需单独计入添加糖"
+    },
+    {
+      "id": "milk-whole",
+      "name": "全脂牛奶",
+      "aliases": ["牛奶", "全脂奶", "纯牛奶"],
+      "category": "奶类",
+      "nutrients_per_100g": {"energy_kcal": 61, "protein_g": 3.2, "fat_g": 3.3, "carbohydrate_g": 4.8, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "品牌包装标签优先"
+    },
+    {
+      "id": "yogurt-plain",
+      "name": "原味酸奶",
+      "aliases": ["酸奶", "原味酸奶"],
+      "category": "奶类",
+      "nutrients_per_100g": {"energy_kcal": 70, "protein_g": 3.5, "fat_g": 3.0, "carbohydrate_g": 7.5, "fiber_g": 0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "添加糖差异大，品牌包装标签优先"
+    },
+    {
+      "id": "apple-raw",
+      "name": "苹果",
+      "aliases": ["苹果", "鲜苹果"],
+      "category": "水果",
+      "nutrients_per_100g": {"energy_kcal": 52, "protein_g": 0.3, "fat_g": 0.2, "carbohydrate_g": 13.8, "fiber_g": 2.4},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "可食部分"
+    },
+    {
+      "id": "banana-raw",
+      "name": "香蕉",
+      "aliases": ["香蕉"],
+      "category": "水果",
+      "nutrients_per_100g": {"energy_kcal": 89, "protein_g": 1.1, "fat_g": 0.3, "carbohydrate_g": 22.8, "fiber_g": 2.6},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "去皮可食部分"
+    },
+    {
+      "id": "broccoli-cooked",
+      "name": "熟西兰花",
+      "aliases": ["西兰花", "花椰菜", "熟西兰花"],
+      "category": "蔬菜",
+      "nutrients_per_100g": {"energy_kcal": 35, "protein_g": 2.4, "fat_g": 0.4, "carbohydrate_g": 7.2, "fiber_g": 3.3},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "不含额外用油"
+    },
+    {
+      "id": "spinach-cooked",
+      "name": "熟菠菜",
+      "aliases": ["菠菜", "熟菠菜"],
+      "category": "蔬菜",
+      "nutrients_per_100g": {"energy_kcal": 23, "protein_g": 3.0, "fat_g": 0.3, "carbohydrate_g": 3.8, "fiber_g": 2.4},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "不含额外用油"
+    },
+    {
+      "id": "tomato-raw",
+      "name": "番茄",
+      "aliases": ["番茄", "西红柿"],
+      "category": "蔬菜",
+      "nutrients_per_100g": {"energy_kcal": 18, "protein_g": 0.9, "fat_g": 0.2, "carbohydrate_g": 3.9, "fiber_g": 1.2},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "生鲜可食部分"
+    },
+    {
+      "id": "cucumber-raw",
+      "name": "黄瓜",
+      "aliases": ["黄瓜", "青瓜"],
+      "category": "蔬菜",
+      "nutrients_per_100g": {"energy_kcal": 15, "protein_g": 0.7, "fat_g": 0.1, "carbohydrate_g": 3.6, "fiber_g": 0.5},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "生鲜可食部分"
+    },
+    {
+      "id": "potato-boiled",
+      "name": "煮土豆",
+      "aliases": ["土豆", "马铃薯", "煮土豆"],
+      "category": "薯类",
+      "nutrients_per_100g": {"energy_kcal": 87, "protein_g": 1.9, "fat_g": 0.1, "carbohydrate_g": 20.1, "fiber_g": 1.8},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "水煮、不含油"
+    },
+    {
+      "id": "sweet-potato-cooked",
+      "name": "熟红薯",
+      "aliases": ["红薯", "地瓜", "甘薯", "熟红薯"],
+      "category": "薯类",
+      "nutrients_per_100g": {"energy_kcal": 86, "protein_g": 1.6, "fat_g": 0.1, "carbohydrate_g": 20.1, "fiber_g": 3.0},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "熟制可食部分"
+    },
+    {
+      "id": "almonds-raw",
+      "name": "原味杏仁",
+      "aliases": ["杏仁", "原味杏仁"],
+      "category": "坚果",
+      "nutrients_per_100g": {"energy_kcal": 579, "protein_g": 21.2, "fat_g": 49.9, "carbohydrate_g": 21.6, "fiber_g": 12.5},
+      "source": "Version 1 engineering seed; production verification required",
+      "data_status": "seed",
+      "notes": "可食部分；调味坚果应优先包装标签"
+    },
+    {
+      "id": "chocolate-milk",
+      "name": "牛奶巧克力",
+      "aliases": ["奶巧克力"],
+      "category": "零食",
+      "nutrients_per_100g": {"energy_kcal": 535, "protein_g": 7.7, "fat_g": 29.7, "carbohydrate_g": 59.4, "fiber_g": 3.4},
+      "source": "USDA-style generic reference seed; use package label when available",
+      "data_status": "seed",
+      "notes": "品牌配方差异较大，包装每100克营养标签优先"
+    },
+    {
+      "id": "chocolate-dark-70-85",
+      "name": "黑巧克力（70%至85%）",
+      "aliases": ["黑巧克力", "黑巧", "70%黑巧克力", "85%黑巧克力"],
+      "category": "零食",
+      "nutrients_per_100g": {"energy_kcal": 598, "protein_g": 7.8, "fat_g": 42.6, "carbohydrate_g": 45.9, "fiber_g": 10.9},
+      "source": "USDA-style generic reference seed; use package label when available",
+      "data_status": "seed",
+      "notes": "可可含量和品牌配方差异较大，包装每100克营养标签优先"
+    },
+    {
+      "id": "cooking-oil",
+      "name": "烹调油",
+      "aliases": ["食用油", "炒菜油", "烹调油", "油"],
+      "category": "油脂",
+      "nutrients_per_100g": {"energy_kcal": 900, "protein_g": 0, "fat_g": 100, "carbohydrate_g": 0, "fiber_g": 0},
+      "source": "Macronutrient conversion: fat 9 kcal/g",
+      "data_status": "verified",
+      "notes": "记录实际进入食物的油量，不等于下锅总量"
+    },
+    {
+      "id": "table-sugar",
+      "name": "白砂糖",
+      "aliases": ["白糖", "砂糖", "白砂糖", "糖"],
+      "category": "糖",
+      "nutrients_per_100g": {"energy_kcal": 400, "protein_g": 0, "fat_g": 0, "carbohydrate_g": 100, "fiber_g": 0},
+      "source": "Macronutrient conversion: carbohydrate 4 kcal/g",
+      "data_status": "verified",
+      "notes": "纯糖工程换算值"
+    }
+  ]
+}
