@@ -1,12 +1,16 @@
 # WeChat Nutrition Assistant
 
-你好，我是住在微信聊天框里的饮食小助手。吃完一顿饭，给我发句话，我就帮你把食物和份量记下来，再算算今天已经吃了多少。训练和体重也可以顺手告诉我，想回头看看时，找我查日报或周报就好。
+English | [简体中文](README.zh-CN.md)
 
-我的语言理解后端由 **DeepSeek API（DS API）** 支持，负责理解你的话、估算目录外食物，以及结合当天记录回答饮食问题。本地 Python 服务负责营养计算和 SQLite 记录存储。食物成分优先查目录或你提供的包装标签；用到模型估算时，我会标出来。
+Hi, I'm a nutrition companion in your WeChat chat. Tell me what you ate, and I'll log the food and portions, then work out how much you've had today. You can send me your workouts and weight too, and ask for a daily summary or weekly review when you want to look back.
 
-[下载 v1.2.0](https://github.com/DDDYT24/Wechat-Nutrition-Assistant/releases/tag/v1.2.0) · [安装与接入](#把我带回去) · [部署公众号](docs/DEPLOYMENT.md)
+My language backend uses the **DeepSeek API (DS API)** to understand your messages, estimate foods outside my catalogue, and answer questions using your daily records. A local Python service handles nutrition calculations and stores records in SQLite. I use catalogue entries or package labels first, and label model estimates when I need them.
 
-## 跟我说就行
+[Download v1.2.0](https://github.com/DDDYT24/Wechat-Nutrition-Assistant/releases/tag/v1.2.0) · [Get started](#bring-me-along) · [Deploy an official account](docs/DEPLOYMENT.md)
+
+## Just send me a message
+
+I understand Chinese food and workout messages like these:
 
 ```text
 一个鸡蛋，一碗米饭；练胸和三头，90分钟，高强度
@@ -16,25 +20,27 @@
 体重72.3kg
 ```
 
-第一次见面，我会先说明数据用途，征得你的同意，再收集并请你确认资料。之后直接发私聊文字就可以，不用每次加“营养助手”前缀。
+For example, the first message records an egg, a bowl of rice, and a 90-minute chest and triceps workout at high intensity. You can also ask how much you have left to eat today or what to have next.
 
-## 我能帮你记什么
+When we first meet, I'll explain how your data is used and ask for your consent before collecting and confirming your profile. After that, send text directly in a private chat. You don't need to add the “营养助手” prefix each time.
 
-- 记下每餐摄入，按早餐、午餐、下午加餐和晚餐归档，查看热量与三大营养素。
-- 识别“个、碗、杯、片”等中文份量，也接受你登记的包装食品标签。
-- 一条消息里既有吃饭又有训练时，分别处理；微信重复投递同一消息时避免重复记账。
-- 保存训练、步数和体重，查询每日余量、体重趋势和周度回顾。运动消耗单独展示，不自动加进饮食预算。
-- 接通 DeepSeek API 后，回答“今天还能吃多少”“下一餐吃什么”，并为目录外食物提供带标记的估算。
+## What I can keep track of
 
-普通微信机器人保持登录时，适配器会在运行机器本地时间 22:30 给当天有饮食记录的好友发送总结。营养服务按上海时间划分日期；使用这一通道时，建议将机器时区设为 `Asia/Shanghai`。
+- Log meals by breakfast, lunch, afternoon snack and evening, with calories and macronutrients.
+- Read Chinese portions such as eggs, bowls, cups and slices, and use food labels you register.
+- Handle food and exercise in the same message, with message identifiers to prevent duplicate records when WeChat retries a delivery.
+- Save workouts, steps and weight, and show daily balances, weight trends and weekly reviews. Exercise expenditure stays separate from your food budget.
+- With the DeepSeek API configured, answer meal-planning questions and provide labelled estimates for foods outside the catalogue.
 
-## 把我带回去
+While the personal-account bot stays signed in, its adapter sends a summary at 22:30 in the host machine's local time to contacts who logged food that day. The nutrition service groups records by Shanghai dates, so set the host timezone to `Asia/Shanghai` when using this channel.
 
-我需要你自行运行服务，并配置微信接入。Release 提供完整项目 ZIP、Python 源码包和 wheel；完整 ZIP 包含食物目录、微信适配器与部署模板，适合第一次安装。
+## Bring me along
 
-要求 Python 3.11+ 和 [uv](https://docs.astral.sh/uv/)。下载并解压 `Wechat-Nutrition-Assistant-v1.2.0.zip`，在解压后的项目目录打开终端。
+You'll need to run the service yourself and configure a WeChat connection. The release includes a complete project ZIP, a Python source package and a wheel. Start with the ZIP for the food catalogue, WeChat adapter and deployment templates.
 
-Windows PowerShell：
+Install Python 3.11+ and [uv](https://docs.astral.sh/uv/), download and extract `Wechat-Nutrition-Assistant-v1.2.0.zip`, then open a terminal in the extracted project directory.
+
+Windows PowerShell:
 
 ```powershell
 Copy-Item .env.example .env
@@ -42,7 +48,7 @@ uv sync --frozen
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-macOS / Linux：
+macOS / Linux:
 
 ```bash
 cp .env.example .env
@@ -50,53 +56,55 @@ uv sync --frozen
 python -c "import secrets; print(secrets.token_urlsafe(48))"
 ```
 
-将最后一条命令生成的随机值填入 `.env` 的 `USER_HMAC_SECRET`，再配置 DS API：
+Put the random value from the last command into `USER_HMAC_SECRET` in `.env`, then configure the DS API:
 
 ```dotenv
-USER_HMAC_SECRET=替换为刚生成的独立随机值
-DEEPSEEK_API_KEY=填入你自己的DeepSeek密钥
+USER_HMAC_SECRET=replace-with-a-long-random-secret
+DEEPSEEK_API_KEY=your-deepseek-api-key
 DEEPSEEK_BASE_URL=https://api.deepseek.com
 DEEPSEEK_MODEL=deepseek-chat
 ```
 
-密钥只留在本地 `.env` 或部署平台的 Secret 中。未配置 DS API 时，我仍可使用目录和规则记餐；目录外食物估算和模型饮食问答需要接通 API，也会产生服务商费用。启用后，相关消息和饮食上下文会发送给 DeepSeek，详见[安全与隐私](SECURITY.md)。
+Keep credentials in your local `.env` or your deployment platform's secret store. Without a DS API key, I can still log meals using the catalogue and rules. Model estimates and conversational dietary answers require the API and may incur provider charges. When enabled, relevant messages and dietary context are sent to DeepSeek. See [security and privacy](SECURITY.md).
 
-启动本地营养服务：
+Start the local nutrition service:
 
 ```powershell
 uv run nutrition-bot
 ```
 
-默认地址为 `http://127.0.0.1:8000`。Windows 用户可另开终端，在项目目录试一句：
+It listens at `http://127.0.0.1:8000` by default. On Windows, open another terminal in the project directory to try a local message:
 
 ```powershell
 .\scripts\test-internal-chat.ps1 -Text '帮助'
 ```
 
-这一步检查本地服务；接入微信还需要下面的配置。
+This checks the local service. To chat through WeChat, configure one of the connections below.
 
-## 在微信里找到我
+## Meet me in WeChat
 
-公众号通道提供 Docker Compose 和 Caddy 部署模板，需要你自己的服务器、固定域名和微信后台配置。请按[公众号部署说明](docs/DEPLOYMENT.md)操作；当前支持明文消息模式，公网传输使用 HTTPS，尚未实现微信 AES 消息加解密。
+The official-account channel includes Docker Compose and Caddy deployment templates. You'll need a server, a fixed domain and your WeChat platform settings. Follow the [deployment guide](docs/DEPLOYMENT.md). This version supports plaintext message mode over HTTPS; WeChat AES message encryption is not implemented.
 
-普通个人微信通道是基于 Wechaty / wechat4u 的非官方实验适配器，需要 Node.js 18+，只适合专用测试小号。账号可能没有网页版权限，也可能掉线或被限制。安装、扫码和启动步骤见[普通微信指南](integrations/wechat-bot/NUTRITION.md)。
+The personal-account channel is an experimental, unofficial adapter built on Wechaty / wechat4u. It needs Node.js 18+ and a dedicated test account. Accounts may lack web-login access, disconnect or face platform restrictions. Follow the [personal-account setup guide](integrations/wechat-bot/NUTRITION.md) for installation and QR-code login.
 
-如果你使用支持 MCP 的客户端，也可以运行 `uv run nutrition-mcp`，通过受控工具访问同一套计算和记录服务。
+If your client supports MCP, run `uv run nutrition-mcp` to access the same calculation and record services through controlled tools.
 
-## 算得清楚，也会有拿不准的时候
+## Where the numbers come from
 
-食物目录以《中国食物成分表》第 6 版数据为基础。数据整理时，部分微量值和缺失值被转为 0，使用时应结合原始数据核验；餐馆配方、烹调油和实际份量也会影响结果。目录外食物的模型估算会标记为 `estimated`，不能当成实测值。
+The food catalogue is based on the sixth edition of the Chinese Food Composition Tables. During data preparation, some trace and missing values were converted to zero; check the original data when accuracy matters. Restaurant recipes, cooking oil and actual portions can also change the result. Model estimates for foods outside the catalogue carry an `estimated` label and should not be treated as measurements.
 
-每日累计和剩余额度只汇总已保存记录。我的用途是帮助一般健康成年人记录饮食和了解摄入情况，不替代诊断、医学营养治疗或药物调整。
+Daily totals and remaining allowances use saved records only. I help generally healthy adults log meals and understand their intake. I don't replace diagnosis, medical nutrition therapy or medication advice.
 
-## 文档与验证
+## Documentation
 
-- [架构与数据边界](docs/ARCHITECTURE.md)
-- [测试指南](docs/TESTING.md)
-- [当前已知问题](docs/KNOWN_ISSUES.md)
-- [公众号部署](docs/DEPLOYMENT.md)
-- [版本变化](CHANGELOG.md)
-- [安全与隐私](SECURITY.md)
-- [第三方来源](THIRD_PARTY_NOTICES.md)
+The detailed guides below are currently in Chinese.
 
-项目采用 [MIT 许可证](LICENSE)。普通微信适配器保留上游许可证与来源说明。
+- [Architecture and data boundaries](docs/ARCHITECTURE.md)
+- [Testing guide](docs/TESTING.md)
+- [Known issues](docs/KNOWN_ISSUES.md)
+- [Official-account deployment](docs/DEPLOYMENT.md)
+- [Changelog](CHANGELOG.md)
+- [Security and privacy](SECURITY.md)
+- [Third-party sources](THIRD_PARTY_NOTICES.md)
+
+The project uses the [MIT licence](LICENSE). The personal-account adapter retains its upstream licence and source attribution.

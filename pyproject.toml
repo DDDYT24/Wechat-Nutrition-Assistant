@@ -43,7 +43,8 @@ include = [
   "/integrations", "/skills", "/scripts", "/deploy", "/docs",
   "/.github", "/.env.example", "/.gitignore", "/.dockerignore",
   "/Dockerfile", "/compose.yaml", "/pyproject.toml", "/uv.lock",
-  "/README.md", "/CHANGELOG.md", "/SECURITY.md", "/LICENSE", "/THIRD_PARTY_NOTICES.md",
+  "/README.md", "/README.zh-CN.md", "/CHANGELOG.md", "/SECURITY.md", "/LICENSE",
+  "/THIRD_PARTY_NOTICES.md",
 ]
 exclude = ["**/node_modules", "**/.data", "**/__pycache__", "**/*.pyc"]
 
