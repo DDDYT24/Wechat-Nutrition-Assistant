@@ -1,0 +1,15 @@
+{$PUBLIC_DOMAIN} {
+	encode zstd gzip
+
+	@wechat_callback path /wechat/callback
+	handle @wechat_callback {
+		reverse_proxy nutrition:8000
+	}
+
+	@health path /health
+	handle @health {
+		reverse_proxy nutrition:8000
+	}
+
+	respond 404
+}

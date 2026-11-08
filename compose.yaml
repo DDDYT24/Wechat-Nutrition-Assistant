@@ -1,0 +1,56 @@
+name: wechat-nutrition-assistant
+
+services:
+  nutrition:
+    build:
+      context: .
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      DATABASE_PATH: /app/data/runtime/nutrition_bot.sqlite3
+      FOOD_CATALOG_PATH: /app/data/foods_v2.json
+      INTERNAL_CHAT_ENABLED: "false"
+    restart: unless-stopped
+    volumes:
+      - nutrition-data:/app/data/runtime
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - >-
+          import urllib.request;
+          urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3).read()
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    security_opt:
+      - no-new-privileges:true
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?Set PUBLIC_DOMAIN in .env}
+    depends_on:
+      nutrition:
+        condition: service_healthy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  nutrition-data:
+  caddy-data:
+  caddy-config:
