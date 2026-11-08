@@ -21,6 +21,7 @@ def main() -> None:
         original = Path.cwd()
         os.chdir(directory)
         process = None
+        log_file = None
         try:
             from wechat_nutrition_bot.catalog import FoodCatalog
             from wechat_nutrition_bot.config import Settings
@@ -44,14 +45,16 @@ def main() -> None:
                 DEEPSEEK_API_KEY="",
                 INTERNAL_CHAT_ENABLED="false",
             )
+            log_path = Path(directory) / "server.log"
+            log_file = log_path.open("w", encoding="utf-8")
             process = subprocess.Popen(
                 [sys.executable, "-m", "wechat_nutrition_bot.main"],
                 env=environment,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
+                stdout=log_file,
+                stderr=subprocess.STDOUT,
             )
             base = f"http://127.0.0.1:{port}"
-            deadline = time.monotonic() + 20
+            deadline = time.monotonic() + 30
             while True:
                 try:
                     with urllib.request.urlopen(f"{base}/health", timeout=1) as response:
@@ -59,7 +62,10 @@ def main() -> None:
                     break
                 except urllib.error.URLError:
                     if process.poll() is not None or time.monotonic() >= deadline:
-                        raise RuntimeError("Installed package did not become healthy") from None
+                        details = log_path.read_text(encoding="utf-8", errors="replace")
+                        raise RuntimeError(
+                            f"Installed package did not become healthy:\n{details}"
+                        ) from None
                     time.sleep(0.1)
             assert health["version"] == "1.2.0"
             assert health["internal_chat_enabled"] is False
@@ -89,6 +95,8 @@ def main() -> None:
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait(timeout=5)
+            if log_file is not None:
+                log_file.close()
             os.chdir(original)
 
 
