@@ -89,7 +89,15 @@ def main() -> None:
             print("Installed package: catalogue, health and signed XML callback passed.")
         finally:
             if process is not None:
-                process.terminate()
+                if os.name == "nt" and process.poll() is None:
+                    subprocess.run(
+                        ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        check=True,
+                    )
+                else:
+                    process.terminate()
                 try:
                     process.wait(timeout=5)
                 except subprocess.TimeoutExpired:
